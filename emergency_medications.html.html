@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Emergency Medications Crossword</title>
+<style>
+:root{--cell:34px;--red:#a61e2f;--gold:#ffc82e;--ink:#263746}
+*{box-sizing:border-box} body{margin:0;background:#fff;color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+main{max-width:1180px;margin:auto;padding:24px}
+header{border-top:7px solid var(--gold);background:var(--red);color:#fff;padding:22px 26px;margin-bottom:20px}
+h1{font-size:30px;margin:0 0 6px} header p{margin:0;line-height:1.45}
+.wrap{display:grid;grid-template-columns:minmax(640px,1.4fr) minmax(330px,.75fr);gap:28px;align-items:start}
+.puzzle-scroll{overflow-x:auto;padding-bottom:8px}
+.grid{display:grid;grid-template-columns:repeat(25,var(--cell));grid-template-rows:repeat(16,var(--cell));width:max-content;position:relative}
+.cell{width:var(--cell);height:var(--cell);border:1px solid #333;background:#fff;position:relative;margin:-.5px}
+.cell input{width:100%;height:100%;border:0;background:transparent;text-align:center;text-transform:uppercase;font-size:19px;font-weight:700;padding:7px 1px 1px;outline:0}
+.cell.active{background:#fff2b8} .cell.wrong{background:#ffd7d7} .cell:focus-within{outline:3px solid #2563a6;outline-offset:-3px;z-index:3}
+.num{position:absolute;left:2px;top:1px;font-size:9px;line-height:1;z-index:2;color:#222}
+.clues{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:22px}
+.clues h2{font-size:21px;margin:0 0 7px;border-bottom:2px solid #ddd;padding-bottom:5px}
+.clue{display:block;width:100%;text-align:left;border:0;background:transparent;color:var(--ink);padding:6px 7px;border-radius:4px;font:inherit;line-height:1.3;cursor:pointer}
+.clue:hover,.clue.selected{background:#f1f3f5} .clue strong{display:inline-block;min-width:25px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 7px}
+.action{border:2px solid var(--red);border-radius:5px;padding:9px 15px;background:#fff;color:var(--red);font-weight:700;cursor:pointer}
+.action.primary{background:var(--red);color:#fff} #status{min-height:25px;font-weight:700;margin-top:8px}
+.note{font-size:14px;color:#555;line-height:1.4}
+@media(max-width:980px){.wrap{grid-template-columns:1fr}.clues{margin-top:0}}
+@media(max-width:620px){:root{--cell:29px}main{padding:12px}header{padding:18px}.clues{grid-template-columns:1fr}}
+</style>
+</head>
+<body><main>
+<header><h1>Emergency Medications</h1><p>Select a clue or a square and type one letter per square. Use <strong>Check My Work</strong> when you are ready.</p></header>
+<div class="wrap">
+<section aria-label="Emergency Medications crossword">
+<div class="puzzle-scroll"><div id="grid" class="grid"></div></div>
+<div class="controls"><button class="action primary" id="check">Check My Work</button><button class="action" id="clear">Clear Puzzle</button></div>
+<div id="status" role="status" aria-live="polite"></div>
+<p class="note">Incorrect letters are marked, but the correct answer is not revealed.</p>
+</section>
+<section class="clues" aria-label="Crossword clues"><div><h2>Across</h2><div id="across"></div></div><div><h2>Down</h2><div id="down"></div></div></section>
+</div>
+<script>
+const entries=[{"n": 1, "dir": "D", "answer": "DOXAPRAM", "clue": "respiratory stiumulant", "r": 0, "c": 7}, {"n": 2, "dir": "D", "answer": "ANTICHOLINERGIC", "clue": "atropine is in this class of medication", "r": 0, "c": 16}, {"n": 3, "dir": "A", "answer": "FUROSEMIDE", "clue": "Causes hypokalemia", "r": 1, "c": 4}, {"n": 4, "dir": "D", "answer": "DIPHENHYDRAMINE", "clue": "used to treat allergic reactions and mostion sickness", "r": 1, "c": 19}, {"n": 5, "dir": "D", "answer": "ATIPAMEZOLE", "clue": "reversal for dexmedetomidine", "r": 1, "c": 22}, {"n": 6, "dir": "D", "answer": "THEOPHYLLINE", "clue": "Bronchodilator that can increase the effects of chocolate toxicity", "r": 1, "c": 24}, {"n": 7, "dir": "A", "answer": "DOPAMINE", "clue": "increases heart contractility", "r": 3, "c": 4}, {"n": 8, "dir": "A", "answer": "EPINEPHRINE", "clue": "catecholamine used in CPR that increases blood glucose", "r": 3, "c": 14}, {"n": 9, "dir": "D", "answer": "DOBUTAMINE", "clue": "decreases heart contractility", "r": 4, "c": 3}, {"n": 10, "dir": "D", "answer": "DEXTROSE", "clue": "shouldn't be given SQ", "r": 4, "c": 12}, {"n": 11, "dir": "A", "answer": "ATROPINE", "clue": "contraindicated in amanita poisioning", "r": 5, "c": 5}, {"n": 12, "dir": "D", "answer": "NARCAN", "clue": "reversal for bupernorphine", "r": 5, "c": 14}, {"n": 13, "dir": "D", "answer": "FLUMAZENIL", "clue": "Reversal for midazolam", "r": 7, "c": 5}, {"n": 14, "dir": "D", "answer": "MIDAZOLAM", "clue": "can be administered rectally", "r": 8, "c": 10}, {"n": 15, "dir": "A", "answer": "LIDOCAINE", "clue": "Used to treat ventricular arrhythmias", "r": 9, "c": 9}, {"n": 16, "dir": "A", "answer": "NABICARBONATE", "clue": "used to treat metabolic acidosis", "r": 11, "c": 0}, {"n": 17, "dir": "A", "answer": "VASOPRESSIN", "clue": "contraindicated in cardiogenic shock", "r": 13, "c": 7}, {"n": 18, "dir": "A", "answer": "XYLAZINE", "clue": "yohimbine reverses", "r": 15, "c": 7}];
+const grid=document.getElementById('grid'), cells=new Map(), inputs=new Map(), memberships=new Map();
+const key=(r,c)=>r+','+c;
+for(const e of entries){
+  for(let i=0;i<e.answer.length;i++){
+    const r=e.r+(e.dir==='D'?i:0), c=e.c+(e.dir==='A'?i:0), k=key(r,c);
+    if(!cells.has(k)) cells.set(k,e.answer[i]);
+    if(!memberships.has(k)) memberships.set(k,[]);
+    memberships.get(k).push(e);
+  }
+}
+const starts=new Map(entries.map(e=>[key(e.r,e.c),e.n]));
+for(const [k,letter] of cells){
+  const [r,c]=k.split(',').map(Number), d=document.createElement('div'); d.className='cell';
+  d.style.gridRow=(r+1); d.style.gridColumn=(c+1);
+  if(starts.has(k)){const s=document.createElement('span');s.className='num';s.textContent=starts.get(k);d.appendChild(s)}
+  const inp=document.createElement('input'); inp.maxLength=1; inp.autocomplete='off'; inp.spellcheck=false;
+  inp.setAttribute('aria-label',`Crossword square row ${r+1}, column ${c+1}`);
+  d.appendChild(inp); grid.appendChild(d); inputs.set(k,inp);
+}
+let active=null;
+function coords(e){return [...Array(e.answer.length)].map((_,i)=>[e.r+(e.dir==='D'?i:0),e.c+(e.dir==='A'?i:0)])}
+function select(e){
+ active=e; document.querySelectorAll('.cell').forEach(x=>x.classList.remove('active')); document.querySelectorAll('.clue').forEach(x=>x.classList.remove('selected'));
+ coords(e).forEach(([r,c])=>inputs.get(key(r,c))?.parentElement.classList.add('active'));
+ document.querySelector(`[data-entry="${e.n}-${e.dir}"]`)?.classList.add('selected');
+}
+function render(dir,id){
+ const host=document.getElementById(id);
+ entries.filter(e=>e.dir===dir).sort((a,b)=>a.n-b.n).forEach(e=>{
+  const b=document.createElement('button'); b.type='button'; b.className='clue'; b.dataset.entry=e.n+'-'+e.dir;
+  b.innerHTML=`<strong>${e.n}.</strong> ${e.clue}`; b.onclick=()=>{select(e);const [r,c]=coords(e)[0];inputs.get(key(r,c)).focus()};host.appendChild(b);
+ });
+}
+render('A','across');render('D','down');
+for(const [k,inp] of inputs){
+ const [r,c]=k.split(',').map(Number);
+ inp.addEventListener('focus',()=>{const es=memberships.get(k); if(!active||!es.includes(active)) select(es[0])});
+ inp.addEventListener('click',()=>{const es=memberships.get(k); if(es.length>1) select(active===es[0]?es[1]:es[0])});
+ inp.addEventListener('input',()=>{
+  inp.value=inp.value.replace(/[^a-z]/gi,'').toUpperCase();inp.parentElement.classList.remove('wrong');
+  if(inp.value&&active){const list=coords(active),p=list.findIndex(x=>x[0]===r&&x[1]===c);if(p>=0&&p<list.length-1)inputs.get(key(...list[p+1])).focus()}
+ });
+ inp.addEventListener('keydown',ev=>{
+  if(ev.key==='Backspace'&&!inp.value&&active){const list=coords(active),p=list.findIndex(x=>x[0]===r&&x[1]===c);if(p>0)inputs.get(key(...list[p-1])).focus()}
+  if(ev.key===' '&&memberships.get(k).length>1){ev.preventDefault();const es=memberships.get(k);select(active===es[0]?es[1]:es[0])}
+ });
+}
+document.getElementById('check').onclick=()=>{
+ let wrong=0,blank=0;document.querySelectorAll('.cell').forEach(x=>x.classList.remove('wrong'));
+ for(const [k,correct] of cells){const inp=inputs.get(k);if(!inp.value)blank++;else if(inp.value!==correct){wrong++;inp.parentElement.classList.add('wrong')}}
+ const s=document.getElementById('status');
+ s.textContent=wrong===0&&blank===0?'Puzzle complete — all answers are correct.':wrong===0?'No incorrect letters found yet. Complete the remaining squares.':'Some letters need another look. Incorrect squares are highlighted.';
+};
+document.getElementById('clear').onclick=()=>{if(confirm('Clear all letters from the puzzle?')){inputs.forEach(i=>i.value='');document.querySelectorAll('.cell').forEach(x=>x.classList.remove('wrong','active'));document.getElementById('status').textContent=''}};
+</script></main></body></html>
